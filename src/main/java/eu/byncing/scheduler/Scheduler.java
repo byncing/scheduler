@@ -1,5 +1,7 @@
 package eu.byncing.scheduler;
 
+import eu.byncing.scheduler.pool.Pool;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +28,10 @@ public class Scheduler {
 
     public SchedulerTask runDelay(Runnable runnable, int delay) {
         return run(new SchedulerTask(tasks.size(), runnable), delay, 0);
+    }
+
+    public Pool pool(int pools) {
+        return new Pool(pools);
     }
 
     public SchedulerTask run(SchedulerTask task, int delay, int period) {
