@@ -23,6 +23,14 @@ public class Test {
     public static void main(String[] args) {
         //create a scheduler instance
         Scheduler scheduler = new Scheduler();
+
+        //create a thread pool
+        Pool pool = scheduler.pool(3);
+
+        scheduler.runTimer(() -> {
+            //execute a pool
+            pool.execute(() -> System.out.println(Thread.currentThread().getName() + ": task run"));
+        }, 0, 500);
         
         //run an async task
         scheduler.runAsync(() -> System.out.println("!This is an async task!"));
