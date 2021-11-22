@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    implementation('eu.byncing:scheduler:1.0.0-SNAPSHOT')
+    implementation('eu.byncing:scheduler:1.0.1-SNAPSHOT')
 }
 ````
 # Example
