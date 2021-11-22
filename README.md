@@ -26,7 +26,6 @@ public class Test {
 
         //create a thread pool
         Pool pool = scheduler.pool(3);
-
         scheduler.runTimer(() -> {
             //execute a pool
             pool.execute(() -> System.out.println(Thread.currentThread().getName() + ": task run"));
