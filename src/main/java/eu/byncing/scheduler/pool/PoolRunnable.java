@@ -1,11 +1,13 @@
 package eu.byncing.scheduler.pool;
 
+import eu.byncing.scheduler.Scheduler;
+
 import java.util.concurrent.BlockingQueue;
 
 public class PoolRunnable implements Runnable {
 
     private Thread thread;
-    private BlockingQueue<Runnable> queue;
+    private final BlockingQueue<Runnable> queue;
     private boolean running = false;
 
     public PoolRunnable(BlockingQueue<Runnable> queue) {
@@ -20,6 +22,7 @@ public class PoolRunnable implements Runnable {
             try {
                 Runnable runnable = queue.take();
                 runnable.run();
+                Scheduler.blocking(1);
             } catch (Exception ignored) {
             }
         }

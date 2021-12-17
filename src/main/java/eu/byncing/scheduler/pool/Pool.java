@@ -1,5 +1,7 @@
 package eu.byncing.scheduler.pool;
 
+import eu.byncing.scheduler.Scheduler;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -7,7 +9,7 @@ import java.util.concurrent.BlockingQueue;
 
 public class Pool {
 
-    private BlockingQueue<Runnable> queue;
+    private final BlockingQueue<Runnable> queue;
     private final List<PoolRunnable> runnables = new ArrayList<>();
 
     private boolean running = true;
@@ -31,13 +33,7 @@ public class Pool {
     }
 
     public synchronized void waitTasks() {
-        try {
-            while (queue.size() > 0) {
-                Thread.sleep(1);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        while (queue.size() > 0) Scheduler.blocking(1);
     }
 
     public BlockingQueue<Runnable> getQueue() {

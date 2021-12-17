@@ -9,13 +9,21 @@ public class Scheduler {
 
     private final List<SchedulerTask> tasks = new ArrayList<>();
 
+    private final List<Pool> pools = new ArrayList<>();
+
+    private final Pool pool;
+
+    public Scheduler(int pools) {
+        this.pool = this.pool(pools);
+    }
+
+    public Scheduler() {
+        this(3);
+    }
+
     public SchedulerTask runAsync(Runnable runnable) {
-        SchedulerTask task = new SchedulerTask(tasks.size(), runnable);
-        new Thread(() -> {
-            task.run();
-            cancel(task.getId());
-        }).start();
-        return task;
+        pool.execute(runnable);
+        return new SchedulerTask(tasks.size(), runnable);
     }
 
     public SchedulerTask runTimer(Runnable runnable, int delay, int period) {
@@ -31,32 +39,45 @@ public class Scheduler {
     }
 
     public Pool pool(int pools) {
-        return new Pool(pools);
+        Pool pool = new Pool(pools);
+        this.pools.add(pool);
+        return pool;
     }
 
     public SchedulerTask run(SchedulerTask task, int delay, int period) {
         new Thread(() -> {
             long current = System.currentTimeMillis();
+            task.start();
             tasks.add(task);
             while (task.isRunning()) {
                 if (System.currentTimeMillis() - current > delay) {
                     if (period <= 0) {
                         if (task.isRunning()) task.run();
-                        return;
+                        break;
                     }
                     current = System.currentTimeMillis();
                     while (task.isRunning()) {
                         if (System.currentTimeMillis() - current > period) {
                             current += period;
                             if (task.isRunning()) task.run();
+                            else break;
                         }
+                        blocking(1);
                     }
-                    return;
+                    break;
                 }
+                blocking(1);
             }
             cancel(task.getId());
-        }).start();
+        }, "Scheduler-" + task.getId()).start();
         return task;
+    }
+
+    public static void blocking(int duration) {
+        try {
+            Thread.sleep(duration);
+        } catch (InterruptedException ignored) {
+        }
     }
 
     public void cancel(int id) {
@@ -67,7 +88,18 @@ public class Scheduler {
     }
 
     public void cancel() {
+        pool.waitTasks();
+        pool.stop();
+
+        for (int i = pools.size() - 1; i >= 0; i--) {
+            Pool pool = pools.get(i);
+            pool.waitTasks();
+            pool.stop();
+        }
+        pools.clear();
+
         for (int i = tasks.size() - 1; i >= 0; i--) cancel(i);
+        tasks.clear();
     }
 
     public SchedulerTask getTask(int id) {

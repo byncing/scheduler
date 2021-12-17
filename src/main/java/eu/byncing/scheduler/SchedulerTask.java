@@ -2,7 +2,7 @@ package eu.byncing.scheduler;
 
 public class SchedulerTask {
 
-    private boolean running = true;
+    private boolean running;
 
     private final int id;
     private final Runnable runnable;
@@ -10,6 +10,10 @@ public class SchedulerTask {
     public SchedulerTask(int id, Runnable runnable) {
         this.id = id;
         this.runnable = runnable;
+    }
+
+    public void start() {
+        running = true;
     }
 
     public void run() {
